@@ -1,20 +1,21 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var path = require('path');
+var config = require('../config');
+var { newError } = require('./helpers');
 
 // require routes
 var clients = require('./routes/clients');
 var users = require('./routes/users');
 var cards = require('./routes/cards');
-var decks = require('./routes/decks')
+var decks = require('./routes/decks');
 
 // make bluebird the default Promise Library
 global.Promise = mongoose.Promise = require('bluebird');
-//mongoose.connect('mongodb://localhost/cardcast');
 
 // start app and connect to db
 var app = express();
-mongoose.connect('mongodb://localhost/cardcast');
+mongoose.connect(config.default.dbHost);
 
 // require middleware
 var bodyParser = require('body-parser');
@@ -27,8 +28,12 @@ app.use(expressSession({ secret: 'cardcast-secret-key'}));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// setup extra middleware
-app.use(morgan('dev'));
+// setup logging
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('dev'));
+}
+
+// configure body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -47,9 +52,7 @@ app.use(express.static(path.join(__dirname, '../clients/')));
 
 // catch 404 errors
 app.use((req, res, next) => {
-  var err = new Error('ERROR 404 Sorry can\'t find what you\'re looking for!');
-  err.status = 404;
-  next(err);
+  next(newError('ERROR 404 Sorry can\'t find what you\'re looking for!', 404));
 });
 
 // error handler
@@ -62,3 +65,5 @@ app.use((err, req, res, next) => {
 app.listen(8000, () => {
   console.log('Server is listening on port 8000!');
 });
+
+module.exports = app;

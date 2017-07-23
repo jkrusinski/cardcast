@@ -9,5 +9,11 @@ module.exports = {
       err.status = 401;
       next(err);
     }
+  },
+
+  newError: function(message, status) {
+    var error = new Error(message);
+    error.status = status;
+    return error;
   }
 };
