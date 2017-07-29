@@ -1,5 +1,5 @@
-var LocalStrategy = require('passport-local').Strategy;
-var users = require('../../db/controllers/users');
+const LocalStrategy = require('passport-local').Strategy;
+const User = require('../../db/controllers/users');
 
 // create a signup strategy using LocalStrategy
 // LocalStrategy uses the local database to do password authentication
@@ -23,14 +23,16 @@ module.exports = function(passport) {
       // database as the second argument: done(null, user)
 
       // now do your database lookup and pass the appropriate arguments to done
-      users.findUser(username)
+      User.findUser(username)
 
         .then(user => {
           if (user) {
-            return done(null, false);
+            const error = new Error('User already exists');
+            error.status = 400;
+            return done(error);
           }
 
-          return users.insertUser(req.body);
+          return User.insertUser(req.body);
         })
 
         .then(newUser => {

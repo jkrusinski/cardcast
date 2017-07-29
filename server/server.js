@@ -57,7 +57,6 @@ app.use((req, res, next) => {
 
 // error handler
 app.use((err, req, res, next) => {
-  console.log(err.stack);
   var status = err.status || 500;
   res.status(status).send(err.message);
 });
