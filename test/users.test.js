@@ -98,5 +98,15 @@ describe('User Routes', () => {
           expect(err).to.have.status(401);
         });
     });
+
+    it('should return a not found status if the user does not exist', () => {
+      return chai.request(server)
+        .post('/api/users/login')
+        .send({ username: 'nonexistent', password: 'secret' })
+        .then(res => { throw res; })
+        .catch(err => {
+          expect(err).to.have.status(404);
+        });
+    });
   });
 });
