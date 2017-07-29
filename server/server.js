@@ -15,7 +15,7 @@ global.Promise = mongoose.Promise = require('bluebird');
 
 // start app and connect to db
 var app = express();
-mongoose.connect(config.default.dbHost);
+mongoose.connect(config[process.env.NODE_ENV || 'default'].dbHost);
 
 // require middleware
 var bodyParser = require('body-parser');
@@ -62,8 +62,10 @@ app.use((err, req, res, next) => {
   res.status(status).send(err.message);
 });
 
-app.listen(8000, () => {
-  console.log('Server is listening on port 8000!');
-});
-
-module.exports = app;
+if (process.env.NODE_ENV === 'test') {
+  module.exports = app;
+} else {
+  app.listen(8000, () => {
+    console.log('Server is listening on port 8000!');
+  });
+}
