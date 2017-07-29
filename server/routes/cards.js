@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var cardController = require('../../db/controllers/cards.js');
+var cardController = require('../../db/models/cards.js');
 var helpers = require('../helpers');
 
 // helpers.isAuth is checking if req is authenticated

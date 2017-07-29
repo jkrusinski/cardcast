@@ -1,4 +1,4 @@
-var User = require('../models/User');
+var User = require('../schemas/User');
 
 // find a user info from the database using their username
 exports.findUser = function(username) {

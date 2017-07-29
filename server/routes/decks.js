@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var cardController = require('../../db/controllers/cards.js');
-var deckController = require('../../db/controllers/decks.js');
+var cardController = require('../../db/models/cards.js');
+var deckController = require('../../db/models/decks.js');
 var helpers = require('../helpers');
 
 // gets all decks from db

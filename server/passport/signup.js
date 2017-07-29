@@ -1,5 +1,5 @@
 const LocalStrategy = require('passport-local').Strategy;
-const User = require('../../db/controllers/users');
+const User = require('../../db/models/users');
 
 // create a signup strategy using LocalStrategy
 // LocalStrategy uses the local database to do password authentication

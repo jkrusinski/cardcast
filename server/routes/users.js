@@ -22,8 +22,7 @@ module.exports = function(passport) {
     '/login',
     passport.authenticate('login'),
     function(req, res, next) {
-      console.log(req.user.username);
-      res.sendStatus(200);
+      res.sendStatus(201);
     }
   );
 

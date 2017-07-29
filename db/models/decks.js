@@ -1,4 +1,4 @@
-var Deck = require('../models/Deck.js');
+var Deck = require('../schemas/Deck.js');
 
 // find all of the user's decks in the database using their id
 exports.findAll = function(id) {

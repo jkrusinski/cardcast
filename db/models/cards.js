@@ -1,4 +1,4 @@
-var Card = require('../models/Card.js');
+var Card = require('../schemas/Card.js');
 
 // find all of the user's cards in the database using their id
 exports.findAll = function(id, deckId) {
