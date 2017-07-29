@@ -129,14 +129,41 @@ describe('User Routes', () => {
           expect(res.body).to.eql(mockUser.username);
         });
     });
+
+    it('should return an unauthorized status if there is no active session', () => {
+      return chai.request(server)
+        .get('/api/users')
+        .then(res => { throw res; })
+        .catch(err => {
+          expect(err).to.have.status(401);
+        });
+    });
   });
 
-  it('should return an unauthorized status if there is no active session', () => {
-    return chai.request(server)
-      .get('/api/users')
-      .then(res => { throw res; })
-      .catch(err => {
-        expect(err).to.have.status(401);
-      });
+  describe('POST /api/users/logout', () => {
+    beforeEach(() => {
+      return User.create(mockUser);
+    });
+    
+    it('should end a user\'s active session', () => {
+      const agent = chai.request.agent(server);
+      return agent.post('/api/users/login')
+        .send(mockUser)
+        .then(() => {
+          return agent.get('/api/users');
+        })
+        .then(res => {
+          expect(res.body).to.eql(mockUser.username);
+          return agent.post('/api/users/logout');
+        })
+        .then(res => {
+          expect(res).to.have.status(200);
+          return agent.get('/api/users');
+        })
+        .then(res => { throw res; })
+        .catch(err => {
+          expect(err).to.have.status(401);
+        });
+    });
   });
 });
