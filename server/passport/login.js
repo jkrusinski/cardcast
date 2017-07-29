@@ -24,7 +24,9 @@ module.exports = function(passport) {
 
     .then((user) => {
       if (!user) {
-        return done(null, false);
+        const error = new Error('User not found');
+        error.status = 404;
+        return done(error, false);
       }
 
       return user.comparePassword(password)
