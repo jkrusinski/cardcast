@@ -1,12 +1,13 @@
 process.env.NODE_ENV = 'test';
 
-var mongoose = require('mongoose');
-var users = require('../db/models/users.js');
+const mongoose = require('mongoose');
+const users = require('../db/models/users.js');
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var server = require('../server/server.js');
-var expect = chai.expect;
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const server = require('../server/server.js');
+const bCrypt = require('bcrypt-nodejs');
+const expect = chai.expect;
 
 chai.use(chaiHttp);
 
@@ -46,6 +47,15 @@ describe('Users', () => {
         })
         .then(results => {
           expect(results.length).to.eql(1);
+        });
+    });
+
+    it('should hash the user\'s password', () => {
+      return chai.request(server)
+        .post('/api/users/signup')
+        .send({ username: 'bobby', password: 'secret' })
+        .then(res => {
+
         });
     });
   });
