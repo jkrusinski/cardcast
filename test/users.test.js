@@ -25,6 +25,7 @@ describe('User Routes', () => {
         .send(mockUser)
         .then((res) => {
           expect(res).to.have.status(201);
+          expect(res).to.have.cookie('connect.sid');
           return User.findOne({ username: 'bobby' });
         })
         .then(user => {
@@ -86,6 +87,7 @@ describe('User Routes', () => {
         .send(mockUser)
         .then(res => {
           expect(res).to.have.status(201);
+          expect(res).to.have.cookie('connect.sid');
         });
     });
 
@@ -108,5 +110,33 @@ describe('User Routes', () => {
           expect(err).to.have.status(404);
         });
     });
+  });
+
+  describe('GET /api/users', () => {
+    beforeEach(() => {
+      return User.create(mockUser);
+    });
+
+    it('should confirm an active session by returning the logged in user', () => {
+      // use agent to preserve cookies
+      const agent = chai.request.agent(server);
+      return agent.post('/api/users/login')
+        .send(mockUser)
+        .then(() => {
+          return agent.get('/api/users');
+        })
+        .then(res => {
+          expect(res.body).to.eql(mockUser.username);
+        });
+    });
+  });
+
+  it('should return an unauthorized status if there is no active session', () => {
+    return chai.request(server)
+      .get('/api/users')
+      .then(res => { throw res; })
+      .catch(err => {
+        expect(err).to.have.status(401);
+      });
   });
 });
