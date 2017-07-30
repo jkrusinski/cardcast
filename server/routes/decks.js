@@ -63,7 +63,7 @@ router.put('/:id', helpers.isAuth, (req, res, next) => {
 // DELETE /api/decks/:id
 router.delete('/:id', helpers.isAuth, (req, res, next) => {
   Promise.all([
-    cards.deleteAllCards(req.body._id),
+    cards.deleteCardsByDeckId(req.body._id),
     decks.deleteDeck(req.body._id)
   ])
     .then(() => {
