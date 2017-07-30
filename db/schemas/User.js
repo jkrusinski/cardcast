@@ -14,7 +14,7 @@ var userSchema = new Schema({
 // save the password as a hash
 userSchema.pre('save', function(next) {
   // make sure hash happens only when password is changed/created
-  if (!user.isModified('password')) {
+  if (!this.isModified('password')) {
     return next();
   }
 
@@ -23,7 +23,7 @@ userSchema.pre('save', function(next) {
       return next(err);
     }
 
-    user.password = hash;
+    this.password = hash;
     next();
   });
 });
