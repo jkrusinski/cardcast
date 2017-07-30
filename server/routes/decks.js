@@ -1,82 +1,76 @@
-var express = require('express');
-var router = express.Router();
-var cardController = require('../../db/models/cards.js');
-var deckController = require('../../db/models/decks.js');
-var helpers = require('../helpers');
+const express = require('express');
+const router = express.Router();
+const cards = require('../../db/models/cards.js');
+const decks = require('../../db/models/decks.js');
+const helpers = require('../helpers');
 
-// gets all decks from db
-router.get('/', helpers.isAuth, function (req, res, next) {
-  deckController.findAll(req.user._id)
-    .then(function (resp) {
-      res.send(resp);
+// GET /api/decks
+router.get('/', helpers.isAuth, (req, res, next) => {
+  decks.findAll(req.user._id)
+    .then((resp) => {
+      res.json(resp);
     })
-    .catch(function(err) {
-      console.error(err);
+    .catch((err) => {
+      next(err);
     });
 });
 
-// adds new deck to the db
-router.post('/', helpers.isAuth, function (req, res, next) {
-
-  var deckInfo = {
+// POST /api/decks
+router.post('/', helpers.isAuth, (req, res, next) => {
+  const deckInfo = {
     title: req.body.title,
     description: req.body.description,
     user: req.user._id
   };
 
-  deckController.insertOne(deckInfo)
-    .then(function (resp) {
-      res.send(resp);
+  decks.insertOne(deckInfo)
+    .then((resp) => {
+      res.status(201).json(resp);
     })
-    .catch(function (err) {
-      console.log(err);
+    .catch((err) => {
+      next(err);
     });
 });
 
-router.get('/:id', helpers.isAuth, function (req, res, next) {
-  deckController.findOne(req.params.id)
-  .then(function (resp) {
-    var deckInfo = resp;
-    cardController.findAll(req.user._id, req.params.id)
-    .then(function (resp) {
-      var deck = {
+// GET /api/decks/:id
+router.get('/:id', helpers.isAuth, (req, res, next) => {
+  Promise.all([
+    decks.findOne(req.params.id),
+    cards.findAll(req.user._id, req.params.id)
+  ])
+    .then(([deckInfo, cards]) => {
+      res.json({
         deckInfo: deckInfo,
-        cards: resp
-      };
-
-      res.send(deck);
-    })
-    .catch(function (err) {
-      console.log(err);
-    });
-  });
-});
-
-// deletes deck and all its cards from db
-router.post('/:deckId', helpers.isAuth, function (req, res, next) {
-  cardController.deleteAllCards(req.body._id)
-    .then(function (resp) {
-      deckController.deleteDeck(req.body._id)
-      .then(function (resp) {
-        res.send(resp);
-      })
-      .catch(function (err) {
-        console.log(err);
+        cards: cards
       });
     })
-    .catch(function (err) {
-      console.log(err);
+    .catch((err) => {
+      next(err);
     });
 });
 
-// update deck title and description
-router.put('/:deckId', helpers.isAuth, function (req, res, next) {
-  deckController.updateDeck(req.body)
-    .then(function(resp) {
-      res.send(resp);
+// PUT /api/decks/:id
+router.put('/:id', helpers.isAuth, (req, res, next) => {
+  decks.updateDeck(req.body)
+    .then((resp) => {
+      res.sendStatus(204);
     })
-    .catch(function(err) {
-      console.log(err);
+    .catch((err) => {
+      next(err);
+    });
+});
+
+// DELETE /api/decks/:id
+router.delete('/:id', helpers.isAuth, (req, res, next) => {
+  Promise.all([
+    cards.deleteAllCards(req.body._id),
+    decks.deleteDeck(req.body._id)
+  ])
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch((err) => {
+      next(err);
     });
 });
 

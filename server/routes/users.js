@@ -8,7 +8,7 @@ const helpers = require('../helpers');
 // the initialized passport object that was created in server/server.js.
 // usually a router is what you would expect to be exported from this file,
 // so make sure that you return the router at the bottom of this function
-module.exports = passport => {
+module.exports = (passport) => {
   // handle get request to '/api/users' to see if there is an active session
   // if the user is logged in, the username will be sent back in the response
   // helpers.isAuth will handle the response for not-logged-in
