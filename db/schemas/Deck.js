@@ -10,6 +10,6 @@ var deckSchema = new Schema({
   }
 });
 
-var DeckModel = mongoose.model('Deck', deckSchema);
+var DeckModel = mongoose.model('deck', deckSchema);
 
 module.exports = DeckModel;

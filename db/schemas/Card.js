@@ -13,10 +13,10 @@ var cardSchema = new Schema({
   },
   deck: {
     type: Schema.Types.ObjectId,
-    ref: 'Deck'
+    ref: 'deck'
   }
 });
 
-var CardModel = mongoose.model('Card', cardSchema);
+var CardModel = mongoose.model('card', cardSchema);
 
 module.exports = CardModel;
