@@ -3,6 +3,7 @@ process.env.NODE_ENV = 'test';
 const mongoose = require('mongoose');
 const Deck = require('../db/schemas/Deck.js');
 const User = require('../db/schemas/User.js');
+const isValidId = mongoose.Types.ObjectId.isValid;
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
@@ -78,20 +79,56 @@ describe('Deck Routes', () => {
   });
 
   describe('POST /api/decks', () => {
+    const newDeck = {
+      title: 'All-Hands Meeting',
+      description: 'A few slides to put up for the all-hands meeting'
+    };
+
     afterEach(() => {
       return agent.post('/api/users/logout');
     });
 
     it('should be a protected route', () => {
       return agent.post('/api/decks')
-        .send({
-          title: 'All-Hands Meeting',
-          description: 'A few slides to put up for the all-hands meeting'
-        })
+        .send(newDeck)
         .then((res) => { throw res; })
         .catch((err) => {
           expect(err).to.have.status(401);
-          return Deck.findOne({ title: 'All-Hands Meeting' });
+          return Deck.findOne(newDeck);
+        })
+        .then((deck) => {
+          expect(deck).to.be.null;
+        });
+    });
+
+    it('should create a new deck for a logged in user', () => {
+      return agent.post('/api/users/login')
+        .send(mockUser)
+        .then(() => {
+          return agent.post('/api/decks').send(newDeck);
+        })
+        .then((res) => {
+          const created = res.body;
+          expect(res).to.have.status(201);
+          expect(_.isMatch(created, newDeck)).to.be.true;
+          expect(isValidId(created.user)).to.be.true;
+          return User.findById(created.user);
+        })
+        .then((user) => {
+          expect(user.username).to.eql(mockUser.username);
+        });
+    });
+
+    it('should not allow users to post new decks without a title', () => {
+      return agent.post('/api/users/login')
+        .send(mockUser)
+        .then(() => {
+          return agent.post('/api/decks').send({ title: '' });
+        })
+        .then((res) => { throw res; })
+        .catch((err) => {
+          expect(err).to.have.status(500);
+          return Deck.findOne({ title: '' });
         })
         .then((deck) => {
           expect(deck).to.be.null;
