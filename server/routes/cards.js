@@ -1,25 +1,24 @@
-var express = require('express');
-var router = express.Router();
-var cards = require('../../db/models/cards.js');
-var helpers = require('../helpers');
+const express = require('express');
+const cards = require('../../db/models/cards.js');
+const helpers = require('../helpers');
+const router = express.Router();
 
 // helpers.isAuth is checking if req is authenticated
 
-// handle get request to '/api/cards/' by using findAll function from cards
-router.get('/', helpers.isAuth, function(req, res, next) {
+// GET /api/cards
+router.get('/', helpers.isAuth, (req, res, next) => {
   // req has a user object given by passport
   cards.findAll(req.user._id, req.body.id)
-    .then(function(resp) {
+    .then((resp) => {
       res.send(resp);
     })
-    .catch(function(err) {
-      console.error(err);
+    .catch((err) => {
+      next(err);
     });
-
 });
 
-// handle post request to '/api/cards' by using insertOne function from cards
-router.post('/', helpers.isAuth, function(req, res) {
+// POST /api/cards
+router.post('/', helpers.isAuth, (req, res, next) => {
   // add user id to the card info to specify whose card it is
   var cardInfo = {
     title: req.body.title,
@@ -32,45 +31,44 @@ router.post('/', helpers.isAuth, function(req, res) {
   };
 
   cards.insertOne(cardInfo)
-    .then(function(resp) {
-      res.sendStatus(200);
+    .then((resp) => {
+      res.sendStatus(201);
     })
-    .catch(function(err) {
-      console.error(err);
+    .catch((err) => {
+      next(err);
     });
 });
 
-// handle post request to '/api/cards/:id' by using deleteCard function from cards
-router.post('/:id', helpers.isAuth, function(req, res, next) {
-  cards.deleteCard(req.body._id)
-    .then(function(resp) {
-      res.sendStatus(200);
-    })
-    .catch(function(err) {
-      console.error(err);
-    });
-
-});
-
-// handle get request to '/api/cards/:id' by using findOne function from cards
-router.get('/:id', helpers.isAuth, function(req, res) {
+// GET /api/cards/:id
+router.get('/:id', helpers.isAuth, (req, res) => {
   cards.findOne(req.params.id)
-    .then(function(resp) {
+    .then((resp) => {
       res.send(resp);
     })
-    .catch(function(err) {
-      console.error(err);
+    .catch((err) => {
+      next(err);
     });
 });
 
-// handle put request to '/api/cards/:id' by using updateCard function from cards
-router.put('/:id', helpers.isAuth, function(req, res) {
+// PUT /api/cards/:id
+router.put('/:id', helpers.isAuth, (req, res, next) => {
   cards.updateCard(req.body)
-    .then(function(resp) {
-      res.sendStatus(200);
+    .then((resp) => {
+      res.sendStatus(204);
     })
-    .catch(function(err) {
-      console.error(err);
+    .catch((err) => {
+      next(err);
+    });
+});
+
+// DELETE /api/cards/:id
+router.delete('/:id', helpers.isAuth, (req, res, next) => {
+  cards.deleteCard(req.body._id)
+    .then((resp) => {
+      res.sendStatus(204);
+    })
+    .catch((err) => {
+      next(err);
     });
 });
 
