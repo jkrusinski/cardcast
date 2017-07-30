@@ -1,7 +1,6 @@
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-
 var bcrypt = require('bcrypt-nodejs');
+var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
   username: {
@@ -14,14 +13,12 @@ var userSchema = new Schema({
 
 // save the password as a hash
 userSchema.pre('save', function(next) {
-  var user = this;
-
   // make sure hash happens only when password is changed/created
   if (!user.isModified('password')) {
     return next();
   }
 
-  bcrypt.hash(user.password, null, null, (err, hash) => {
+  bcrypt.hash(this.password, null, null, (err, hash) => {
     if (err) {
       return next(err);
     }
@@ -34,11 +31,8 @@ userSchema.pre('save', function(next) {
 // hash the potential password and see if there is a match
 // this will be a method on the model
 userSchema.methods.comparePassword = function(password) {
-  var user = this;
-
   return new Promise((fulfill, reject) => {
-    bcrypt.compare(password, user.password, (err, res) => {
-
+    bcrypt.compare(password, this.password, (err, res) => {
       if (err) {
         return reject(err);
       }
