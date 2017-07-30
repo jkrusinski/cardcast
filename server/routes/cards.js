@@ -1,14 +1,14 @@
 var express = require('express');
 var router = express.Router();
-var cardController = require('../../db/models/cards.js');
+var cards = require('../../db/models/cards.js');
 var helpers = require('../helpers');
 
 // helpers.isAuth is checking if req is authenticated
 
-// handle get request to '/api/cards/' by using findAll function from cardController
+// handle get request to '/api/cards/' by using findAll function from cards
 router.get('/', helpers.isAuth, function(req, res, next) {
   // req has a user object given by passport
-  cardController.findAll(req.user._id, req.body.id)
+  cards.findAll(req.user._id, req.body.id)
     .then(function(resp) {
       res.send(resp);
     })
@@ -18,7 +18,7 @@ router.get('/', helpers.isAuth, function(req, res, next) {
 
 });
 
-// handle post request to '/api/cards' by using insertOne function from cardController
+// handle post request to '/api/cards' by using insertOne function from cards
 router.post('/', helpers.isAuth, function(req, res) {
   // add user id to the card info to specify whose card it is
   var cardInfo = {
@@ -31,7 +31,7 @@ router.post('/', helpers.isAuth, function(req, res) {
     font: req.body.font
   };
 
-  cardController.insertOne(cardInfo)
+  cards.insertOne(cardInfo)
     .then(function(resp) {
       res.sendStatus(200);
     })
@@ -40,9 +40,9 @@ router.post('/', helpers.isAuth, function(req, res) {
     });
 });
 
-// handle post request to '/api/cards/:id' by using deleteCard function from cardController
+// handle post request to '/api/cards/:id' by using deleteCard function from cards
 router.post('/:id', helpers.isAuth, function(req, res, next) {
-  cardController.deleteCard(req.body._id)
+  cards.deleteCard(req.body._id)
     .then(function(resp) {
       res.sendStatus(200);
     })
@@ -52,9 +52,9 @@ router.post('/:id', helpers.isAuth, function(req, res, next) {
 
 });
 
-// handle get request to '/api/cards/:id' by using findOne function from cardController
+// handle get request to '/api/cards/:id' by using findOne function from cards
 router.get('/:id', helpers.isAuth, function(req, res) {
-  cardController.findOne(req.params.id)
+  cards.findOne(req.params.id)
     .then(function(resp) {
       res.send(resp);
     })
@@ -63,9 +63,9 @@ router.get('/:id', helpers.isAuth, function(req, res) {
     });
 });
 
-// handle put request to '/api/cards/:id' by using updateCard function from cardController
+// handle put request to '/api/cards/:id' by using updateCard function from cards
 router.put('/:id', helpers.isAuth, function(req, res) {
-  cardController.updateCard(req.body)
+  cards.updateCard(req.body)
     .then(function(resp) {
       res.sendStatus(200);
     })
