@@ -2,14 +2,19 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var deckSchema = new Schema({
-  title: String,
-  description: String,
+
+  title: {
+    type: String,
+    required: true
+  },
+
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'user'
-  }
+    ref: 'user',
+    required: true
+  },
+
+  description: String
 });
 
-var DeckModel = mongoose.model('deck', deckSchema);
-
-module.exports = DeckModel;
+module.exports = mongoose.model('deck', deckSchema);
