@@ -16,6 +16,23 @@ chai.use(chaiHttp);
 // persist cookies across the entire test
 const agent = chai.request.agent(server);
 
+// used to trim off mongoose document methods for comparisons to response objects
+// uses stringify to converty ObjectId's to strings
+const getSimpleDeck = (match) => {
+  return Deck.findOne(match)
+    .then((deck) => {
+      console.dir(deck);
+      const trimmed = _.pick(deck, [
+        '__v',
+        '_id',
+        'user',
+        'title',
+        'description'
+      ]);
+      return JSON.parse(JSON.stringify(trimmed));
+    });
+};
+
 const mockUser = {
   username: 'bobby',
   password: 'secret'
@@ -146,10 +163,9 @@ describe('Deck Routes', () => {
       return agent.post('/api/users/login')
         .send(mockUser)
         .then(() => {
-          return Deck.find({});
+          return getSimpleDeck(mockDecks[0]);
         })
-        .then((existing) => {
-          const target = existing[0];
+        .then((target) => {
           return Promise.all([
             Promise.resolve(target),
             agent.get(`/api/decks/${target._id}`)
@@ -157,10 +173,7 @@ describe('Deck Routes', () => {
         })
         .then(([target, res]) => {
           const actual = res.body.deckInfo;
-          expect(actual.user).to.eql(target.user.toString());
-          expect(actual.title).to.eql(target.title);
-          expect(actual.description).to.eql(target.description);
-          expect(actual._id).to.eql(target._id.toString());
+          expect(actual).to.eql(target);
         });
     });
   });
