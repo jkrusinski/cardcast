@@ -49,11 +49,11 @@ before(() => {
 });
 
 describe('Deck Routes', () => {
-  describe('GET /api/decks', () => {
-    afterEach(() => {
-      return agent.post('/api/users/logout');
-    });
+  afterEach(() => {
+    return agent.post('/api/users/logout');
+  });
 
+  describe('GET /api/decks', () => {
     it('should be a protected route', () => {
       return agent.get('/api/decks')
         .then(res => { throw res; })
@@ -83,10 +83,6 @@ describe('Deck Routes', () => {
       title: 'All-Hands Meeting',
       description: 'A few slides to put up for the all-hands meeting'
     };
-
-    afterEach(() => {
-      return agent.post('/api/users/logout');
-    });
 
     it('should be a protected route', () => {
       return agent.post('/api/decks')
@@ -132,6 +128,39 @@ describe('Deck Routes', () => {
         })
         .then((deck) => {
           expect(deck).to.be.null;
+        });
+    });
+  });
+
+  describe('GET /api/decks/:id', () => {
+    it('should be a protected route', () => {
+      return agent.get('/api/decks/597e3185363b9bc48280e6ad')
+        .then((res) => { throw res; })
+        .catch((err) => {
+          expect(err).to.have.status(401);
+        });
+    });
+
+    // TODO missing check for correct cards returned
+    it('should retrieve the deck with the specified id', () => {
+      return agent.post('/api/users/login')
+        .send(mockUser)
+        .then(() => {
+          return Deck.find({});
+        })
+        .then((existing) => {
+          const target = existing[0];
+          return Promise.all([
+            Promise.resolve(target),
+            agent.get(`/api/decks/${target._id}`)
+          ]);
+        })
+        .then(([target, res]) => {
+          const actual = res.body.deckInfo;
+          expect(actual.user).to.eql(target.user.toString());
+          expect(actual.title).to.eql(target.title);
+          expect(actual.description).to.eql(target.description);
+          expect(actual._id).to.eql(target._id.toString());
         });
     });
   });
