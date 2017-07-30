@@ -21,7 +21,6 @@ const agent = chai.request.agent(server);
 const getSimpleDeck = (match) => {
   return Deck.findOne(match)
     .then((deck) => {
-      console.dir(deck);
       const trimmed = _.pick(deck, [
         '__v',
         '_id',
@@ -34,8 +33,8 @@ const getSimpleDeck = (match) => {
 };
 
 const mockUser = {
-  username: 'bobby',
-  password: 'secret'
+  username: 'paul',
+  password: 'hollywood'
 };
 
 const mockDecks = [
@@ -174,6 +173,38 @@ describe('Deck Routes', () => {
         .then(([target, res]) => {
           const actual = res.body.deckInfo;
           expect(actual).to.eql(target);
+        });
+    });
+  });
+
+  describe('PUT /api/decks/:id', () => {
+    it('should be a protected route', () => {
+      return agent.put('/api/decks/597e3185363b9bc48280e6ad')
+        .then((res) => { throw res; })
+        .catch((err) => {
+          expect(err).to.have.status(401);
+        });
+    });
+
+    it('should update a user\'s post', () => {
+      const deckUpdate = { title: 'New Title' };
+      return agent.post('/api/users/login')
+        .send(mockUser)
+        .then(() => {
+          return getSimpleDeck(mockDecks[0]);
+        })
+        .then((target) => {
+          return Promise.all([
+            Promise.resolve(target),
+            agent.put(`/api/decks/${target._id}`).send(deckUpdate)
+          ]);
+        })
+        .then(([target, res]) => {
+          expect(res).to.have.status(204);
+          return Deck.findById(target._id);
+        })
+        .then((actual) => {
+          expect(actual.title).to.eql(deckUpdate.title);
         });
     });
   });

@@ -51,7 +51,7 @@ router.get('/:id', helpers.isAuth, (req, res, next) => {
 
 // PUT /api/decks/:id
 router.put('/:id', helpers.isAuth, (req, res, next) => {
-  decks.updateDeck(req.body)
+  decks.updateDeck(req.params.id, req.body)
     .then((resp) => {
       res.sendStatus(204);
     })

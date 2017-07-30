@@ -16,8 +16,8 @@ exports.findOne = (id) => {
 };
 
 // update the card info in the database
-exports.updateDeck = (deck) => {
-  return Deck.update({_id: deck.id}, {$set: {title: deck.title, description: deck.description}});
+exports.updateDeck = (id, update) => {
+  return Deck.findOneAndUpdate({ _id: id }, update);
 };
 
 // deletes a deck from the database
