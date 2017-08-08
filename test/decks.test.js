@@ -209,3 +209,34 @@ describe('Deck Routes', () => {
     });
   });
 });
+
+describe('DELETE /api/decks/:id', () => {
+  it('should be a protected route', () => {
+    return agent.delete('/api/decks/597e3185363b9bc48280e6ad')
+      .then((res) => { throw err; })
+      .catch((err) => {
+        expect(err).to.have.status(401);
+      });
+  });
+
+  it('should delete a user\'s post', () => {
+    return agent.post('/api/users/login')
+      .send(mockUser)
+      .then(() => {
+        return getSimpleDeck(mockDecks[0]);
+      })
+      .then((target) => {
+        return Promise.all([
+          Promise.resolve(target),
+          agent.delete(`/api/decks/${target._id}`)
+        ]);
+      })
+      .then(([target, res]) => {
+        expect(res).to.have.status(204);
+        return Deck.findById(target._id);
+      })
+      .then((actual) => {
+        expect(actual).to.be.null;
+      });
+  });
+});
